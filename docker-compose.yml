@@ -1,0 +1,112 @@
+version: '3.8'
+
+services:
+  # Main application
+  travel-bot:
+    build: .
+    container_name: travel-bot
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=postgresql://travelbot:password@postgres:5432/travel_bot_db
+      - REDIS_URL=redis://redis:6379/0
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - HUGGINGFACE_API_TOKEN=${HUGGINGFACE_API_TOKEN}
+      - LOG_LEVEL=INFO
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - travel-bot-network
+
+  # PostgreSQL database
+  postgres:
+    image: postgres:13
+    container_name: travel-bot-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=travel_bot_db
+      - POSTGRES_USER=travelbot
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - travel-bot-network
+
+  # Redis for caching and sessions
+  redis:
+    image: redis:6-alpine
+    container_name: travel-bot-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - travel-bot-network
+
+  # Celery worker for background tasks (optional)
+  celery-worker:
+    build: .
+    container_name: travel-bot-celery
+    restart: unless-stopped
+    command: celery -A src.celery_app worker --loglevel=info
+    environment:
+      - DATABASE_URL=postgresql://travelbot:password@postgres:5432/travel_bot_db
+      - REDIS_URL=redis://redis:6379/0
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - HUGGINGFACE_API_TOKEN=${HUGGINGFACE_API_TOKEN}
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - travel-bot-network
+
+  # Celery beat for scheduled tasks (optional)
+  celery-beat:
+    build: .
+    container_name: travel-bot-celery-beat
+    restart: unless-stopped
+    command: celery -A src.celery_app beat --loglevel=info
+    environment:
+      - DATABASE_URL=postgresql://travelbot:password@postgres:5432/travel_bot_db
+      - REDIS_URL=redis://redis:6379/0
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - HUGGINGFACE_API_TOKEN=${HUGGINGFACE_API_TOKEN}
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - travel-bot-network
+
+  # Nginx for webhook handling (optional)
+  nginx:
+    image: nginx:alpine
+    container_name: travel-bot-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./ssl:/etc/nginx/ssl
+    depends_on:
+      - travel-bot
+    networks:
+      - travel-bot-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  travel-bot-network:
+    driver: bridge 
