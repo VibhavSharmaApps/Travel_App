@@ -83,7 +83,7 @@ class Notification(Base):
     priority = Column(String(20), default="normal")  # 'low', 'normal', 'high', 'urgent'
     
     # Additional data
-    metadata = Column(JSON, nullable=True)
+    notification_data = Column(JSON, nullable=True)
     
     created_at = Column(DateTime, default=datetime.utcnow)
     
