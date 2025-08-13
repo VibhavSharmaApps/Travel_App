@@ -33,9 +33,7 @@ sys.path.append(str(Path(__file__).parent / "src"))
 from src.config import config
 from src.database import db_manager
 from src.data_manager import data_manager
-from src.telegram_bot import telegram_bot
 from src.scheduler import notification_scheduler
-from src.ai_engine import ai_engine
 
 # Configure comprehensive logging
 logging.basicConfig(
@@ -96,17 +94,17 @@ class TravelBotApp:
             # Step 1: Validate configuration
             logger.info("Validating configuration...")
             config.validate()
-            logger.info("✅ Configuration validated successfully")
+            logger.info("Configuration validated successfully")
             
             # Step 2: Initialize database
             logger.info("Initializing database...")
             db_manager.create_tables()
-            logger.info("✅ Database initialized successfully")
+            logger.info("Database initialized successfully")
             
             # Step 3: Load travel data from Excel files
             logger.info("Loading travel data from Excel files...")
             if data_manager.load_data():
-                logger.info("✅ Travel data loaded successfully")
+                logger.info("Travel data loaded successfully")
                 
                 # Log data statistics
                 stats = data_manager.get_statistics()
@@ -120,6 +118,7 @@ class TravelBotApp:
             
             # Step 4: Initialize AI engine
             logger.info("Initializing AI engine...")
+            from src.ai_engine import ai_engine
             # AI engine is initialized when imported, but we can verify it's working
             test_result = ai_engine.process_message("Hello")
             if test_result['intent']:
@@ -129,6 +128,7 @@ class TravelBotApp:
             
             # Step 5: Initialize Telegram bot
             logger.info("Initializing Telegram bot...")
+            from src.telegram_bot import telegram_bot
             await telegram_bot.initialize()
             logger.info("✅ Telegram bot initialized successfully")
             
@@ -168,6 +168,7 @@ class TravelBotApp:
             
             # Start Telegram bot in background
             logger.info("Starting Telegram bot...")
+            from src.telegram_bot import telegram_bot
             bot_task = asyncio.create_task(telegram_bot.run())
             self.tasks.append(bot_task)
             logger.info("✅ Telegram bot started")

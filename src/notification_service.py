@@ -7,7 +7,6 @@ import json
 
 from .models import Notification, User, Booking
 from .database import db_manager
-from .telegram_bot import telegram_bot
 
 logger = logging.getLogger(__name__)
 
@@ -69,6 +68,7 @@ class NotificationService:
                 message = self._format_notification_message(notification)
                 
                 # Send via Telegram
+                from .telegram_bot import telegram_bot
                 success = await telegram_bot.send_message(
                     chat_id=user.telegram_id,
                     text=message,
