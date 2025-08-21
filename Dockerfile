@@ -19,11 +19,14 @@ RUN apt-get update && apt-get install -y \
 # Copy requirements and install Python dependencies
 COPY requirements.txt .
 
-# Install PyTorch CPU-only version to reduce size
-RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+# Upgrade pip first
+RUN pip install --upgrade pip
 
-# Install other dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Install PyTorch CPU-only version to reduce size
+RUN pip install --no-cache-dir torch==2.0.1 torchvision==0.15.2 torchaudio==2.0.2 --index-url https://download.pytorch.org/whl/cpu
+
+# Install other dependencies with verbose output
+RUN pip install --no-cache-dir -r requirements.txt --verbose
 
 # Copy project files
 COPY . .
