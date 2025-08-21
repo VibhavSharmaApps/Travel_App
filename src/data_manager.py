@@ -141,7 +141,12 @@ class DataManager:
         # Validate data types and content
         for column in ['Seats Available', 'Stops']:
             if not pd.api.types.is_numeric_dtype(self.flights_data[column]):
-                raise ValueError(f"Column '{column}' must be numeric")
+                # Try to convert to numeric
+                try:
+                    self.flights_data[column] = pd.to_numeric(self.flights_data[column], errors='coerce')
+                    logger.info(f"Converted column '{column}' to numeric")
+                except Exception as e:
+                    raise ValueError(f"Column '{column}' must be numeric and could not be converted: {e}")
         
         logger.info("Flight data validation passed")
     
