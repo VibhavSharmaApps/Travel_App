@@ -29,10 +29,10 @@ from typing import Dict, List, Optional, Tuple, Any
 import json
 import re
 from datetime import datetime
-import torch
 import numpy as np
 import os
 
+import torch
 from transformers import pipeline, AutoTokenizer, AutoModelForSeq2SeqLM
 from sentence_transformers import SentenceTransformer
 
@@ -214,19 +214,27 @@ class AIEngine:
                 self.intent_classifier = TravelIntentClassifier()  # Will use fallback
             
             # Setup conversation model for response generation
-            # Using BlenderBot for natural conversation flow
-            self.conversation_pipeline = pipeline(
-                "text2text-generation",
-                model=config.HUGGINGFACE_MODEL_NAME,
-                token=config.HUGGINGFACE_API_TOKEN,
-                device=0 if torch.cuda.is_available() else -1
-            )
+            try:
+                self.conversation_pipeline = pipeline(
+                    "text2text-generation",
+                    model=config.HUGGINGFACE_MODEL_NAME,
+                    token=config.HUGGINGFACE_API_TOKEN,
+                    device=0 if torch.cuda.is_available() else -1
+                )
+                logger.info("Conversation model loaded successfully")
+            except Exception as e:
+                logger.warning(f"Failed to load conversation model: {e}")
+                self.conversation_pipeline = None
             
             # Setup sentence encoder for intent classification
-            # Using all-MiniLM-L6-v2 for fast and accurate semantic similarity
-            self.sentence_encoder = SentenceTransformer('all-MiniLM-L6-v2')
+            try:
+                self.sentence_encoder = SentenceTransformer('all-MiniLM-L6-v2')
+                logger.info("Sentence encoder loaded successfully")
+            except Exception as e:
+                logger.warning(f"Failed to load sentence encoder: {e}")
+                self.sentence_encoder = None
             
-            logger.info("Hugging Face models loaded successfully")
+            logger.info("AI models setup completed")
             
         except Exception as e:
             logger.error(f"Failed to setup AI models: {e}")
