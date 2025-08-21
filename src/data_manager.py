@@ -91,6 +91,7 @@ class DataManager:
             
             self.flights_data = pd.read_excel(flights_file, engine='openpyxl')
             logger.info(f"Loaded {len(self.flights_data)} flight records")
+            logger.info(f"Actual columns in flights file: {list(self.flights_data.columns)}")
             
             # Validate flight data structure
             self._validate_flight_data()
@@ -102,6 +103,7 @@ class DataManager:
             
             self.hotels_data = pd.read_excel(hotels_file, engine='openpyxl')
             logger.info(f"Loaded {len(self.hotels_data)} hotel records")
+            logger.info(f"Actual columns in hotels file: {list(self.hotels_data.columns)}")
             
             # Validate hotel data structure
             self._validate_hotel_data()
