@@ -32,9 +32,15 @@ from datetime import datetime
 import numpy as np
 import os
 
-import torch
-from transformers import pipeline, AutoTokenizer, AutoModelForSeq2SeqLM
-from sentence_transformers import SentenceTransformer
+# Try to import AI libraries, fallback if not available
+try:
+    import torch
+    from transformers import pipeline, AutoTokenizer, AutoModelForSeq2SeqLM
+    from sentence_transformers import SentenceTransformer
+    AI_AVAILABLE = True
+except ImportError:
+    AI_AVAILABLE = False
+    print("AI libraries not available, using fallback mode")
 
 from .config import config
 from .data_manager import data_manager
