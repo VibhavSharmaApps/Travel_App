@@ -89,7 +89,7 @@ class DataManager:
             if not flights_file.exists():
                 raise FileNotFoundError(f"Flight data file not found: {flights_file}")
             
-            self.flights_data = pd.read_excel(flights_file)
+            self.flights_data = pd.read_excel(flights_file, engine='openpyxl')
             logger.info(f"Loaded {len(self.flights_data)} flight records")
             
             # Validate flight data structure
@@ -100,7 +100,7 @@ class DataManager:
             if not hotels_file.exists():
                 raise FileNotFoundError(f"Hotel data file not found: {hotels_file}")
             
-            self.hotels_data = pd.read_excel(hotels_file)
+            self.hotels_data = pd.read_excel(hotels_file, engine='openpyxl')
             logger.info(f"Loaded {len(self.hotels_data)} hotel records")
             
             # Validate hotel data structure

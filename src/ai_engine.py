@@ -78,12 +78,7 @@ class TravelIntentClassifier:
     
     def __init__(self, model_path='intent_classifier_complete.pth'):
         try:
-            # Add TfidfVectorizer to safe globals for PyTorch loading
-            from torch.serialization import add_safe_globals
-            from sklearn.feature_extraction.text import TfidfVectorizer
-            add_safe_globals([TfidfVectorizer])
-            
-            # Load the trained model
+            # Load the trained model (simplified for newer PyTorch versions)
             loaded_data = torch.load(model_path, map_location='cpu', weights_only=False)
             
             # Create model with correct dimensions
